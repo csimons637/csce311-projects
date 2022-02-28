@@ -1,12 +1,15 @@
-#ifndef UDS_H_
+#ifndef PROJECT_2_UDS_H_
+#define PROJECT_2_UDS_H_
 // Copyright 2022 Charles Simons
-// Modified from existing code by J. Lewis (instructor for CSCE 311, Spring 2022)
 // Written for Project 2 - CSCE 311 @ U of SC
+// Modified from existing code by J. Lewis
+// (instructor for CSCE 311, Spring 2022)
 
 // Header for Unix Domain Socket Constructor
 
 // includes
 #include <sys/socket.h>
+#include <sys/sysinfo.h>
 #include <sys/un.h>
 #include <unistd.h>
 
@@ -20,24 +23,23 @@
 #include <iostream>
 // end inludes
 
-class UnixDomainSocket {
+class UnixDomSock {
  public:
-  explicit UnixDomainSocket(const char *socket_path) {
+  explicit UnixDomSock(const char *socket_path) {
     socket_path_ = std::string(socket_path);  // std::string manages char *
 
     sock_addr_ = {};  // init struct (replaces memset)
-    sock_addr_.sun_family = AF_UNIX;  // set to Unix domain socket (e.g. instead
-                                      //   of internet domain socket)
-    // leaving leading null char sets abstract socket
+    sock_addr_.sun_family = AF_UNIX;  // set to Unix domain socket (instead
+                                      // of internet domain socket; AF_INET)
+    // leaving leading null char sets abstract socket (temporary socket)
     strncpy(sock_addr_.sun_path + 1,  // use strncpy to limit copy for
-            socket_path,              //   portability
+            socket_path,              // portability
             sizeof(sock_addr_.sun_path) - 2);  // -2 for leading/trailing \0s
   }
 
  protected:
   ::sockaddr_un sock_addr_;  // socket address from sys/un.h
-
   std::string socket_path_;  // let std::string manage char *
 };
 
-#endif
+#endif  // PROJECT_2_UDS_H_
