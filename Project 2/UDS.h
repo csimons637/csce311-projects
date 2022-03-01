@@ -5,7 +5,7 @@
 // Modified from existing code by J. Lewis
 // (instructor for CSCE 311, Spring 2022)
 
-// Header for Unix Domain Socket Constructor
+// Header file for Unix Domain Socket Constructor
 
 // includes
 #include <sys/socket.h>
