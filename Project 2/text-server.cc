@@ -3,7 +3,7 @@
 // Modified from existing code by J. Lewis
 // (instructor for CSCE 311, Spring 2022)
 
-#include <UDS_server.h>
+#include <./UDS_server.h>
 
 // server for demonstrating IPC using Unix Domain sockets
 // receives file name and search term from client

@@ -46,7 +46,7 @@ class DomClntSock : public UnixDomSock {
     char write_buff[kWrite_buff_size];  // write buffer
     int bytes_written;  // number of bytes written from buffer
     while (true) {
-        cin.getline(write_buff, kWrite_buff_size);  // reads from 64 bytes stdin
+        cin.getline(write_buff, kWrite_buff_size);  // reads 64 bytes from stdin
                                                     // & stores in write buffer
         while (cin.gcount() > 0) {
             if (cin.gcount() == kWrite_buff_size - 1 && cin.fail())

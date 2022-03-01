@@ -17,7 +17,7 @@ text-client : text-client.cc
 			$(link) $@ $^
 
 # server compilation
-test-server : text-server.cc
+text-server : text-server.cc
 			$(link) $@ $^
 
 # directory clean-up
