@@ -5,6 +5,8 @@
 // Modified from existing code by J. Lewis
 // (instructor for CSCE 311, Spring 2022)
 
+// Header file for Unix Domain Socket Server
+
 #include <./UDS.h>
 using std::cout;
 using std::cerr;
@@ -22,21 +24,21 @@ class DomServSock : public UnixDomSock {
     // Socket Creation
     socket_filedes = socket(AF_UNIX, SOCK_STREAM, 0);
     if (socket_filedes < 0) {                       //
-        cerr << strerror(errno) << endl;  // Error if socket_filedes
+        cerr << strerror(errno) << endl;            // Error if socket_filedes
         exit(-1);                                   // doesn't init as it should
     }
 
     // Socket Binding
     unlink(socket_path_.c_str());  // Deletes file, if it exists
     int success = bind(socket_filedes,  // pointer to sock_addr_,
-                                        // but cast as a socket pointer
+                                        // but cast as a sockaddr pointer
         reinterpret_cast<const sockaddr*>(&sock_addr_), sizeof(sock_addr_));
                                         // sizeof must be known to prevent
                                         // mismatch between parent and child
     if (success < 0) {
-        cerr << strerror(errno) << endl;  //
-                                                    // Error if socket bind
-                                                    // doesn't happen properly
+        cerr << strerror(errno) << endl;            //
+                                                    // Error if socket doesn't
+                                                    // bind properly
         exit(-1);
     }
 
