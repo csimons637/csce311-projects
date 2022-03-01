@@ -40,6 +40,8 @@ class DomClntSock : public UnixDomSock {
     }
 
     // Write to Server
+    const char kEOT = '\004';  // end-of-transmission
+    const char kUS = '\037';  // universal separator
     ssize_t kWrite_buff_size = 64;  // 64 bytes of buffer space for writing
     char write_buff[kWrite_buff_size];  // write buffer
     int bytes_written;  // number of bytes written from buffer
