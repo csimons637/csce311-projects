@@ -4,6 +4,7 @@
 ## IPC Demo Using Unix Domain Sockets
 
 # Included Files
+    - makefile
     - UDS.h
     - UDS_server.h
     - UDS_client.h
@@ -16,6 +17,7 @@
     - README.md
     - proj2.pdf
 # File Relationships
+    - makefile: Builds executable object files and cleans working directory (based on command line argument)
     - UDS.h: 
         Source for UDS_server.h and UDS_client.h
         Dictates the system libraries and constructor used by the server and client sockets
