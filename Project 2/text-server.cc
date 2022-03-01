@@ -1,27 +1,25 @@
 // Copyright 2022 Charles Simons
 // Written for Project 2 - CSCE 311 @ U of SC
+// Modified from existing code by J. Lewis
+// (instructor for CSCE 311, Spring 2022)
 
-
+#include <UDS_server.h>
 
 // server for demonstrating IPC using Unix Domain sockets
-// processes large text files to find particular search term from the client
+// receives file name and search term from client
+// returns found line(s) to client
 
-class UnixDomSock {
- public:
-  explicit UnixDomSock(const char *sock_path) {
-      sock_path_ = std::string(sock_path);
+using std::cout;
+using std::endl;
 
-      sock_addr_ = {};
-      sock_addr_.sun_family = AF_UNIX;
-
-      strncpy(sock_addr_.sun_path + 1, sock_path,
-              sizeof(sock_addr_.sun_path) - 2);
+int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    cout << "Usage: ./text-server <socket name>" << endl;
+    return 1;
   }
 
- protected:
-  ::sockaddr_un sock_addr_;
-  std::string sock_path_;
-};
-
-
-// Domain Socket Server
+  if (argv[1] != NULL) {        // checks that argument exists
+    DomServSock dss(argv[1]);   // builds new server socket
+    dss.RunServ();              // runs the server
+  }
+}
