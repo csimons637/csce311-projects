@@ -18,26 +18,19 @@
 # File Relationships
     - UDS.h: 
         Source for UDS_server.h and UDS_client.h
-        Dictates the system libraries and constructor
-        used by the server and client sockets
+        Dictates the system libraries and constructor used by the server and client sockets
     - UDS_server.h:
         Header file for server socket
-        Constructs and modifies socket
-        (sets path, name, read buffer, etc)
+        Constructs and modifies socket (sets path, name, read buffer, etc)
     - UDS_client.h:
         Header file for client socket
-        Constructs and modifies socket
-        (connects to server, sets write buffer, etc)
+        Constructs and modifies socket (connects to server, sets write buffer, etc)
     - text-server.cc:
-        Runs the server socket and takes in the
-        socket's path name as a command line argument
+        Runs the server socket and takes in the socket's path name as a command line argument
     - text-client.cc
-        Runs the client socket and takes in the
-        socket's path name, the file to search, and
-        the search key as command line arguments
+        Runs the client socket and takes in the socket's path name, the file to search, and the search key as command line arguments
     - text files:
-        Text files to be searched by the server, to find
-        the client's specifed search string
+        Text files to be searched by the server, to find the client's specifed search string
 # File Functionality
     - The .h files provide the constructors and basic logic of the sockets
     - The .cc files provide executability for the client and server
