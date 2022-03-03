@@ -1,5 +1,5 @@
-#ifndef PROJECT_2_UDS_CLIENT_H_
-#define PROJECT_2_UDS_CLIENT_H_
+#ifndef UDS_CLIENT_H_
+#define UDS_CLIENT_H_
 // Copyright 2022 Charles Simons
 // Written for Project 2 - CSCE 311 @ U of SC
 // Modified from existing code by J. Lewis
@@ -66,4 +66,4 @@ class DomClntSock : public UnixDomSock {
   }
 };
 
-#endif  // PROJECT_2_UDS_CLIENT_H_
+#endif  // UDS_CLIENT_H_

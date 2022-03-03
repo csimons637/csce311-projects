@@ -1,5 +1,5 @@
-#ifndef PROJECT_2_UDS_SERVER_H_
-#define PROJECT_2_UDS_SERVER_H_
+#ifndef UDS_SERVER_H_
+#define UDS_SERVER_H_
 // Copyright 2022 Charles Simons
 // Written for Project 2 - CSCE 311 @ U of SC
 // Modified from existing code by J. Lewis
@@ -83,4 +83,4 @@ class DomServSock : public UnixDomSock {
   }
 };
 
-#endif  // PROJECT_2_UDS_SERVER_H_
+#endif  // UDS_SERVER_H_
