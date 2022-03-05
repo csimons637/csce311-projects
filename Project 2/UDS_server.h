@@ -64,7 +64,7 @@ class DomServSock : public UnixDomSock {
         continue;                                   // wrong socket name
       }
 
-      cout << "Client connectd" << endl;
+      cout << "Client connected" << endl;
 
       // Data Reception from Client
       bytes_read = read(client_req_filedes, read_buff, kRead_buff_size);

@@ -16,9 +16,9 @@ using std::endl;
 
 class DomClntSock : public UnixDomSock {
  public:
-  using ::UnixDomSock::UnixDomSock;
+  using UnixDomSock::UnixDomSock;
 
-  void RunClnt() const {
+  void RunClnt() {
       int socket_filedes;  // Socket file descriptor (no name)
       socket_filedes = socket(AF_UNIX, SOCK_STREAM, 0);
       if (socket_filedes < 0) {                   //
@@ -44,9 +44,13 @@ class DomClntSock : public UnixDomSock {
     const char kUS = '\037';  // universal separator
     ssize_t kWrite_buff_size = 64;  // 64 bytes of buffer space for writing
     char write_buff[kWrite_buff_size];  // write buffer
-    int bytes_written;  // number of bytes written from buffer
+    ssize_t bytes_written;  // number of bytes written from buffer
 
     while (true) {
+        if (sizeof(write_buff) <= kWrite_buff_size) {
+            write_buff[sizeof(write_buff) + 1] = kEOT;
+        }
+
         cin.getline(write_buff, kWrite_buff_size);  // reads 64 bytes
                                                     // & stores in write buffer
         while (cin.gcount() > 0) {
