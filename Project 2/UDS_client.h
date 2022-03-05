@@ -7,7 +7,7 @@
 
 // Header file for Unix Domain Socket Client
 
-#include <./UDS.h>
+#include "UDS.h"
 using std::cout;
 using std::cin;
 using std::cerr;
@@ -45,8 +45,9 @@ class DomClntSock : public UnixDomSock {
     ssize_t kWrite_buff_size = 64;  // 64 bytes of buffer space for writing
     char write_buff[kWrite_buff_size];  // write buffer
     int bytes_written;  // number of bytes written from buffer
+
     while (true) {
-        cin.getline(write_buff, kWrite_buff_size);  // reads 64 bytes from stdin
+        cin.getline(write_buff, kWrite_buff_size);  // reads 64 bytes
                                                     // & stores in write buffer
         while (cin.gcount() > 0) {
             if (cin.gcount() == kWrite_buff_size - 1 && cin.fail())

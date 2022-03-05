@@ -1,5 +1,5 @@
-#ifndef PROJECT_2_UDS_H_
-#define PROJECT_2_UDS_H_
+#ifndef UDS_H_
+#define UDS_H_
 // Copyright 2022 Charles Simons
 // Written for Project 2 - CSCE 311 @ U of SC
 // Modified from existing code by J. Lewis
@@ -39,7 +39,7 @@ class UnixDomSock {
 
  protected:
   ::sockaddr_un sock_addr_;  // socket address from sys/un.h
-  std::string socket_path_;  // let std::string manage char *
+  std::string socket_path_;  // lets std::string manage char *
 };
 
-#endif  // PROJECT_2_UDS_H_
+#endif  // UDS_H_

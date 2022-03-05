@@ -7,9 +7,11 @@
 
 // Header file for Unix Domain Socket Server
 
-#include <./UDS.h>
+#include "UDS.h"
 using std::cout;
+using std::cin;
 using std::cerr;
+using std::clog;
 using std::endl;
 
 class DomServSock : public UnixDomSock {
@@ -52,7 +54,7 @@ class DomServSock : public UnixDomSock {
         exit(-1);
     }
 
-    const size_t kRead_buff_size = 32;  // 32 bytes of buffer space for reading
+    const size_t kRead_buff_size = 64;  // 64 bytes of buffer space for reading
     char read_buff[kRead_buff_size];  // read buffer
     int bytes_read;  // number of bytes read into the buffer
     while (true) {  // one socket per client (if threaded)
@@ -66,13 +68,48 @@ class DomServSock : public UnixDomSock {
 
       // Data Reception from Client
       bytes_read = read(client_req_filedes, read_buff, kRead_buff_size);
-      const char kKill_mesg[] = "quit";
+      const char kKill_mesg[] = "Quit";
       const char kEOT = '\004';  // end-of-transmission
       const char kUS = '\037';  // universal separator
-      cout << "Read " << bytes_read << " bytes: ";
-      cout.write(read_buff, bytes_read) << endl;
+
+      while (bytes_read > 0) {
+        if (strcmp(read_buff, kKill_mesg) == 0) {     // On kill msg receipt
+          cout << "Shutting Down Server..." << endl;  // print closing message
+          bytes_read = 0;                             // set bytes_read to 0
+          break;
+        }
+
+        cout << "Read " << bytes_read << " bytes: ";
+        cout.write(read_buff, bytes_read) << endl;
+      }
+
       bytes_read = read(client_req_filedes, read_buff, kRead_buff_size);
     }
+
+    // Send Data to Client
+    ssize_t kWrite_buff_size = 64;  // 64 bytes of buffer space for writing
+    char write_buff[kWrite_buff_size];  // write buffer
+    int bytes_written;  // number of bytes written from buffer
+
+    while (true) {
+        cin.getline(write_buff, kWrite_buff_size);  // reads 64 bytes
+                                                    // & stores in write buffer
+        while (cin.gcount() > 0) {
+            if (cin.gcount() == kWrite_buff_size - 1 && cin.fail())
+                cin.clear();
+            bytes_written = write(socket_filedes, write_buff, cin.gcount());
+            cout << "Sent " << bytes_written << " bytes" << endl;
+            if (bytes_written == 0) {
+                clog << "Client dropped connection" << endl;
+            } else if (bytes_written < 0) {
+                cerr << strerror(errno) << endl;
+                exit(-1);
+            }
+
+            cin.getline(write_buff, kWrite_buff_size);
+        }
+    }
+
     if (bytes_read == 0) {
         cout << "Client disconnected" << endl;
         close(client_req_filedes);

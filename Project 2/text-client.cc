@@ -3,7 +3,7 @@
 // Modified from existing code by J. Lewis
 // (instructor for CSCE 311, Spring 2022)
 
-#include <./UDS_client.h>
+#include "UDS_client.h"
 
 // client for demonstrating IPC using Unix Domain sockets
 // sends file name and search term to server socket
@@ -19,8 +19,6 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  if (argv[1] != NULL) {        // checks that argument exists
-    DomClntSock dcs(argv[1]);   // builds new client
-    dcs.RunClnt();              // runs the client
-  }
+  DomClntSock dcs(argv[1]);   // builds new client
+  dcs.RunClnt();              // runs the client
 }

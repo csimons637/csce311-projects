@@ -3,7 +3,7 @@
 // Modified from existing code by J. Lewis
 // (instructor for CSCE 311, Spring 2022)
 
-#include <./UDS_server.h>
+#include "UDS_server.h"
 
 // server for demonstrating IPC using Unix Domain sockets
 // receives file name and search term from client
@@ -18,8 +18,6 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  if (argv[1] != NULL) {        // checks that argument exists
-    DomServSock dss(argv[1]);   // builds new server socket
-    dss.RunServ();              // runs the server
-  }
+  DomServSock dss(argv[1]);   // builds new server socket
+  dss.RunServ();              // runs the server
 }
