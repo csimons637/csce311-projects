@@ -20,7 +20,7 @@ class DomServSock : public UnixDomSock {
  public:
   using UnixDomSock::UnixDomSock;
   size_t max_client_connects = get_nprocs_conf();  // maximum clients allowed
-
+  int total_bytes_sent;
 
   void RunServ() const {
     int socket_filedes;      // Socket file descriptor (no name)
@@ -73,11 +73,14 @@ class DomServSock : public UnixDomSock {
 
       // Find Client Specified File
       ifstream search_file;
-      ssize_t kFile_read = 32;
+      const size_t kFile_read = 64;
       char file_read[kFile_read];
-      read(client_req_filedes, file_read, kRead_buff_size);
+      int fBytes_read;
+      fBytes_read = read(client_req_filedes, file_read, kFile_read);
+      clog << "File Path Received: " << fBytes_read << " bytes" << endl;
       search_file.open(file_read);
       if (search_file.fail()) {
+          clog << file_read << endl;
           clog << "Invalid File" << endl;
           exit(-1);
       }
@@ -86,8 +89,8 @@ class DomServSock : public UnixDomSock {
       // Data Reception from Client
       bytes_read = read(client_req_filedes, read_buff, kRead_buff_size);
       const char kKill_mesg[] = "Quit";
-      const char kEOT = '\004';  // end-of-transmission
-      const char kUS = '\037';  // universal separator
+    //   const char kEOT = '\004';  // end-of-transmission
+    //   const char kUS = '\037';  // universal separator
 
       while (bytes_read > 0) {
         if (strcmp(read_buff, kKill_mesg) == 0) {     // On kill msg receipt
@@ -96,8 +99,8 @@ class DomServSock : public UnixDomSock {
           break;
         }
 
-        cout << "Read " << bytes_read << " bytes: " << endl;
-        cout.write(read_buff, bytes_read) << endl;
+        clog << "Read " << bytes_read << " bytes" << endl;
+        clog.write(read_buff, bytes_read) << endl;
       }
 
       // Search File for Client Request
@@ -129,19 +132,19 @@ class DomServSock : public UnixDomSock {
             bytes_written = write(socket_filedes, write_buff, cin.gcount());
             cout << "Sent " << bytes_written << " bytes" << endl;
             if (bytes_written == 0) {
-                clog << "Client dropped connection" << endl;
+                clog << "Client Dropped Connection" << endl;
                 break;
             } else if (bytes_written < 0) {
                 cerr << strerror(errno) << endl;
                 exit(-1);
             }
 
-            // cin.getline(write_buff, kWrite_buff_size);
+            cin.getline(write_buff, kWrite_buff_size);
         }
     }
 
     if (bytes_read == 0) {
-        cout << "Client disconnected" << endl;
+        clog << "Client Disconnected" << endl;
         close(client_req_filedes);
         clog << "Bytes Sent: " << bytes_written << endl;
     } else if (bytes_read < 0) {
