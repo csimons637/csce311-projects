@@ -21,6 +21,8 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
+
 // end inludes
 
 class UnixDomSock {

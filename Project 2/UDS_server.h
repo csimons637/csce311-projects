@@ -8,6 +8,8 @@
 // Header file for Unix Domain Socket Server
 
 #include "UDS.h"
+#include <string>
+using std::ifstream;
 using std::cout;
 using std::cin;
 using std::cerr;
@@ -16,7 +18,9 @@ using std::endl;
 
 class DomServSock : public UnixDomSock {
  public:
-  using ::UnixDomSock::UnixDomSock;
+  using UnixDomSock::UnixDomSock;
+  size_t max_client_connects = get_nprocs_conf();  // maximum clients allowed
+
 
   void RunServ() const {
     int socket_filedes;      // Socket file descriptor (no name)
@@ -29,6 +33,8 @@ class DomServSock : public UnixDomSock {
         cerr << strerror(errno) << endl;            // Error if socket_filedes
         exit(-1);                                   // doesn't init as it should
     }
+    clog << "Server Started" << endl
+         << "Max Clients: " << max_client_connects << endl;
 
     // Socket Binding
     unlink(socket_path_.c_str());  // Deletes file, if it exists
@@ -45,7 +51,6 @@ class DomServSock : public UnixDomSock {
     }
 
     // Await Client Connection(s)
-    size_t max_client_connects = get_nprocs_conf();  // maximum clients allowed
     success = listen(socket_filedes, max_client_connects);
      if (success < 0) {
         cerr << strerror(errno) << endl;  //
@@ -64,7 +69,19 @@ class DomServSock : public UnixDomSock {
         continue;                                   // wrong socket name
       }
 
-      cout << "Client connected" << endl;
+      clog << "Client Connected" << endl;
+
+      // Find Client Specified File
+      ifstream search_file;
+      ssize_t kFile_read = 32;
+      char file_read[kFile_read];
+      read(client_req_filedes, file_read, kRead_buff_size);
+      search_file.open(file_read);
+      if (search_file.fail()) {
+          clog << "Invalid File" << endl;
+          exit(-1);
+      }
+      clog << "Path: " << file_read << endl;
 
       // Data Reception from Client
       bytes_read = read(client_req_filedes, read_buff, kRead_buff_size);
@@ -79,8 +96,20 @@ class DomServSock : public UnixDomSock {
           break;
         }
 
-        cout << "Read " << bytes_read << " bytes: ";
+        cout << "Read " << bytes_read << " bytes: " << endl;
         cout.write(read_buff, bytes_read) << endl;
+      }
+
+      // Search File for Client Request
+      std::string search = read_buff;
+      std::string temp = "";
+      std::string found = "";
+      while (!search_file.eof()) {
+          getline(search_file, temp);
+          for (int i = 0; i < search.size(); i++) {
+              if (search[i] == temp[i])
+                  found += temp[i];
+          }
       }
 
       bytes_read = read(client_req_filedes, read_buff, kRead_buff_size);
@@ -101,18 +130,20 @@ class DomServSock : public UnixDomSock {
             cout << "Sent " << bytes_written << " bytes" << endl;
             if (bytes_written == 0) {
                 clog << "Client dropped connection" << endl;
+                break;
             } else if (bytes_written < 0) {
                 cerr << strerror(errno) << endl;
                 exit(-1);
             }
 
-            cin.getline(write_buff, kWrite_buff_size);
+            // cin.getline(write_buff, kWrite_buff_size);
         }
     }
 
     if (bytes_read == 0) {
         cout << "Client disconnected" << endl;
         close(client_req_filedes);
+        clog << "Bytes Sent: " << bytes_written << endl;
     } else if (bytes_read < 0) {
         cerr << strerror(errno) << endl;
         exit(-1);

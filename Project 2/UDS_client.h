@@ -8,6 +8,7 @@
 // Header file for Unix Domain Socket Client
 
 #include "UDS.h"
+#include <string>
 using std::cout;
 using std::cin;
 using std::cerr;
@@ -17,6 +18,11 @@ using std::endl;
 class DomClntSock : public UnixDomSock {
  public:
   using UnixDomSock::UnixDomSock;
+  const char *file;
+
+  void getFile(const char *file_name) {
+      file = file_name;
+  }
 
   void RunClnt() {
       int socket_filedes;  // Socket file descriptor (no name)
@@ -39,7 +45,10 @@ class DomClntSock : public UnixDomSock {
     exit(-1);
     }
 
-    // Write to Server
+    // Write File Name to Server
+    ssize_t fBytes_written = write(socket_filedes, file, sizeof(file));
+
+    // Write Query to Server
     const char kEOT = '\004';  // end-of-transmission
     const char kUS = '\037';  // universal separator
     ssize_t kWrite_buff_size = 64;  // 64 bytes of buffer space for writing
@@ -60,6 +69,7 @@ class DomClntSock : public UnixDomSock {
             cout << "Sent " << bytes_written << " bytes" << endl;
             if (bytes_written == 0) {
                 clog << "Server dropped connection" << endl;
+                break;
             } else if (bytes_written < 0) {
                 cerr << strerror(errno) << endl;
                 exit(-1);
