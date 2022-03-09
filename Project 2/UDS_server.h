@@ -77,10 +77,11 @@ class DomServSock : public UnixDomSock {
       char file_read[kFile_read];
       int fBytes_read;
       fBytes_read = read(client_req_filedes, file_read, kFile_read);
-      clog << "File Path Received: " << fBytes_read << " bytes" << endl;
-      search_file.open(file_read);
+      clog << "File Path Received: " << file_read << endl
+           << fBytes_read << " bytes" << endl;
+      search_file.open("dat/dante.txt");
       if (search_file.fail()) {
-          clog << file_read << endl;
+        //   clog << file_read << endl;
           clog << "Invalid File" << endl;
           exit(-1);
       }
@@ -107,7 +108,7 @@ class DomServSock : public UnixDomSock {
       std::string search = read_buff;
       std::string temp = "";
       std::string found = "";
-      while (!search_file.eof()) {
+      while (getline(search_file, search)) {
           getline(search_file, temp);
           for (int i = 0; i < search.size(); i++) {
               if (search[i] == temp[i])

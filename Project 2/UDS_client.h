@@ -19,7 +19,7 @@ class DomClntSock : public UnixDomSock {
  public:
   using UnixDomSock::UnixDomSock;
   const char *file;
-  const char *search_str;
+  const char *search;
   int total_bytes_received;
 
   void getFile(const char *file_name) {
@@ -27,7 +27,7 @@ class DomClntSock : public UnixDomSock {
   }
 
   void getSearch(const char *search_string) {
-      search_str = search_string;
+      search = search_string;
   }
 
   void RunClnt() {
@@ -57,9 +57,8 @@ class DomClntSock : public UnixDomSock {
          << fBytes_written << " bytes" << endl;
 
     // Write Query to Server
-    ssize_t sBytes_written = write(socket_filedes, search_str,
-                                    sizeof(search_str));
-    clog << "Search Query Sent: " << search_str << endl
+    ssize_t sBytes_written = write(socket_filedes, search, sizeof(search));
+    clog << "Search Query Sent: " << search << endl
          << sBytes_written << " bytes" << endl;
     // const char kEOT = '\004';  // end-of-transmission
     // const char kUS = '\037';  // universal separator
