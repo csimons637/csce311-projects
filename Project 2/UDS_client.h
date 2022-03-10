@@ -54,11 +54,11 @@ class DomClntSock : public UnixDomSock {
     clog << "Connected to Server\n" << endl;
 
     // Write File Name to Server
-    ssize_t fBytes_written = write(socket_filedes, file, sizeof(file_name));
+    write(socket_filedes, file, sizeof(file_name));
     clog << "File Path Sent: " << file << endl;
 
     // Write Query to Server
-    ssize_t sBytes_written = write(socket_filedes, search, sizeof(search_term));
+    write(socket_filedes, search, sizeof(search_term));
     clog << "Search Query Sent: " << search << '\n' << endl;
 
     // Read Result from Server

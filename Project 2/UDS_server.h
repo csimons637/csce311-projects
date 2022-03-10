@@ -61,7 +61,6 @@ class DomServSock : public UnixDomSock {
 
     const size_t kRead_buff_size = 32;  // 64 bytes of buffer space for reading
     char read_buff[kRead_buff_size];  // read buffer
-    int bytes_read;  // number of bytes read into the buffer
     while (true) {  // one socket per client (if threaded)
         client_req_filedes = accept(socket_filedes, nullptr, nullptr);
         if (client_req_filedes  < 0) {              //
@@ -75,8 +74,7 @@ class DomServSock : public UnixDomSock {
       ifstream search_file;  // file stream in
       const size_t kFile_read = 32;
       char file_read[kFile_read];  // file read buffer
-      int fBytes_read;  // num bytes read for file path
-      fBytes_read = read(client_req_filedes, file_read, kFile_read);
+      read(client_req_filedes, file_read, kFile_read);
       search_file.open(file_read);
       if (search_file.fail()) {
         //   clog << file_read << endl;
@@ -86,21 +84,18 @@ class DomServSock : public UnixDomSock {
       clog << "Path: " << file_read << endl;
 
       // Data Reception from Client
-      bytes_read = read(client_req_filedes, read_buff, kRead_buff_size);
+      read(client_req_filedes, read_buff, kRead_buff_size);
       clog << "Search Term: " << read_buff << '\n' << endl;
 
       // Search File for Client Request
       clog << "Sending Results to Client" << endl;
-      ssize_t tBytes_written;
-      ssize_t bytes_written;  // bytes sent
       std::string search = read_buff;
       std::string line;
       std::string results;
       bool found_term = false;
       while (getline(search_file, line)) {
         if (line.find(search) != std::string::npos) {
-          bytes_written = write(client_req_filedes, line.c_str(),
-                                sizeof(line));
+          write(client_req_filedes, line.c_str(), sizeof(line));
           clog << "Results: " << line << endl;
           found_term = true;
           break;
@@ -109,8 +104,7 @@ class DomServSock : public UnixDomSock {
 
       if (!found_term) {
         std::string not_found = "\"" + search + "\"" + " was not found";
-        bytes_written = write(client_req_filedes, not_found.c_str(),
-                              sizeof(not_found));
+        write(client_req_filedes, not_found.c_str(), sizeof(not_found));
       }
 
       clog << '\n' << "Total Sent: " << sizeof(line) << " bytes" << endl;
