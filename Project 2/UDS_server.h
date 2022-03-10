@@ -20,7 +20,7 @@ class DomServSock : public UnixDomSock {
  public:
   using UnixDomSock::UnixDomSock;
   size_t max_client_connects = get_nprocs_conf();  // maximum clients allowed
-  int total_bytes_sent;
+  const char *search_res;
 
   void RunServ() const {
     int socket_filedes;      // Socket file descriptor (no name)
@@ -59,7 +59,7 @@ class DomServSock : public UnixDomSock {
         exit(-1);
     }
 
-    const size_t kRead_buff_size = 64;  // 64 bytes of buffer space for reading
+    const size_t kRead_buff_size = 32;  // 64 bytes of buffer space for reading
     char read_buff[kRead_buff_size];  // read buffer
     int bytes_read;  // number of bytes read into the buffer
     while (true) {  // one socket per client (if threaded)
@@ -72,14 +72,14 @@ class DomServSock : public UnixDomSock {
       clog << "Client Connected" << endl;
 
       // Find Client Specified File
-      ifstream search_file;
-      const size_t kFile_read = 64;
-      char file_read[kFile_read];
-      int fBytes_read;
+      ifstream search_file;  // file stream in
+      const size_t kFile_read = 32;
+      char file_read[kFile_read];  // file read buffer
+      int fBytes_read;  // num bytes read for file path
       fBytes_read = read(client_req_filedes, file_read, kFile_read);
-      clog << "File Path Received: " << file_read << endl
-           << fBytes_read << " bytes" << endl;
-      search_file.open("dat/dante.txt");
+      clog << "File Path Received: " << " (" << fBytes_read
+           << " bytes)" << endl;
+      search_file.open(file_read);
       if (search_file.fail()) {
         //   clog << file_read << endl;
           clog << "Invalid File" << endl;
@@ -89,68 +89,32 @@ class DomServSock : public UnixDomSock {
 
       // Data Reception from Client
       bytes_read = read(client_req_filedes, read_buff, kRead_buff_size);
-      const char kKill_mesg[] = "Quit";
-    //   const char kEOT = '\004';  // end-of-transmission
-    //   const char kUS = '\037';  // universal separator
-
-      while (bytes_read > 0) {
-        if (strcmp(read_buff, kKill_mesg) == 0) {     // On kill msg receipt
-          cout << "Shutting Down Server..." << endl;  // print closing message
-          bytes_read = 0;                             // set bytes_read to 0
-          break;
-        }
-
-        clog << "Read " << bytes_read << " bytes" << endl;
-        clog.write(read_buff, bytes_read) << endl;
-      }
+      clog << "Search Term Received: " << " (" << bytes_read << " bytes)"
+           << endl;
+      clog << "Search Term: " << read_buff << endl;
 
       // Search File for Client Request
+      ssize_t tBytes_written;
+      ssize_t bytes_written;  // bytes sent
       std::string search = read_buff;
-      std::string temp = "";
-      std::string found = "";
-      while (getline(search_file, search)) {
-          getline(search_file, temp);
-          for (int i = 0; i < search.size(); i++) {
-              if (search[i] == temp[i])
-                  found += temp[i];
-          }
+      std::string line;
+      std::string results;
+      while (getline(search_file, line)) {
+        if (line.find(search)) {
+          bytes_written = write(client_req_filedes, line.c_str(),
+                                sizeof(line));
+          results += line;
+          tBytes_written += bytes_written;
+        }
+        break;
       }
 
-      bytes_read = read(client_req_filedes, read_buff, kRead_buff_size);
-    }
+      // Send Results to Client
+      clog << "Sending Results to Client" << endl;
+      // clog << "Results: " << results << endl;
 
-    // Send Data to Client
-    ssize_t kWrite_buff_size = 64;  // 64 bytes of buffer space for writing
-    char write_buff[kWrite_buff_size];  // write buffer
-    int bytes_written;  // number of bytes written from buffer
-
-    while (true) {
-        cin.getline(write_buff, kWrite_buff_size);  // reads 64 bytes
-                                                    // & stores in write buffer
-        while (cin.gcount() > 0) {
-            if (cin.gcount() == kWrite_buff_size - 1 && cin.fail())
-                cin.clear();
-            bytes_written = write(socket_filedes, write_buff, cin.gcount());
-            cout << "Sent " << bytes_written << " bytes" << endl;
-            if (bytes_written == 0) {
-                clog << "Client Dropped Connection" << endl;
-                break;
-            } else if (bytes_written < 0) {
-                cerr << strerror(errno) << endl;
-                exit(-1);
-            }
-
-            cin.getline(write_buff, kWrite_buff_size);
-        }
-    }
-
-    if (bytes_read == 0) {
-        clog << "Client Disconnected" << endl;
-        close(client_req_filedes);
-        clog << "Bytes Sent: " << bytes_written << endl;
-    } else if (bytes_read < 0) {
-        cerr << strerror(errno) << endl;
-        exit(-1);
+      // clog << endl << "Total Saved: " << sizeof(results) << " bytes" << endl;
+      clog << '\n' << "Total Sent: " << tBytes_written << " bytes" << endl;
     }
   }
 };

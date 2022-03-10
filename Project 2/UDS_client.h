@@ -19,14 +19,15 @@ class DomClntSock : public UnixDomSock {
  public:
   using UnixDomSock::UnixDomSock;
   const char *file;
+  std::string file_name = file;
   const char *search;
-  int total_bytes_received;
+  std::string search_term = search;
 
-  void getFile(const char *file_name) {
+  void getFileName(const char *file_name) {
       file = file_name;
   }
 
-  void getSearch(const char *search_string) {
+  void getSearchTerm(const char *search_string) {
       search = search_string;
   }
 
@@ -52,61 +53,24 @@ class DomClntSock : public UnixDomSock {
     }
 
     // Write File Name to Server
-    ssize_t fBytes_written = write(socket_filedes, file, sizeof(file));
-    clog << "File Path Sent: " << file << endl
-         << fBytes_written << " bytes" << endl;
+    ssize_t fBytes_written = write(socket_filedes, file, sizeof(file_name));
+    clog << "File Path Sent: " << file_name
+         << " (" << fBytes_written << " bytes)" << endl;
 
     // Write Query to Server
-    ssize_t sBytes_written = write(socket_filedes, search, sizeof(search));
-    clog << "Search Query Sent: " << search << endl
+    ssize_t sBytes_written = write(socket_filedes, search, sizeof(search_term));
+    clog << "Search Query Sent: " << search_term << endl
          << sBytes_written << " bytes" << endl;
-    // const char kEOT = '\004';  // end-of-transmission
-    // const char kUS = '\037';  // universal separator
-    ssize_t kWrite_buff_size = 64;  // 64 bytes of buffer space for writing
-    char write_buff[kWrite_buff_size];  // write buffer
-    // ssize_t bytes_written;  // number of bytes written from buffer
 
-    // while (true) {
-    //     // if (sizeof(write_buff) <= kWrite_buff_size) {
-    //     //     write_buff[sizeof(write_buff) + 1] = kEOT;
-    //     // }
+    // Read Results from Server
+    const size_t kServ_read = 64;
+    char result[kServ_read];
+    clog << "Results Received from Server!" << endl;
+    ssize_t sBytes_read = read(socket_filedes, result, kServ_read);
+    std::string results = result;
+    clog << results << endl;
 
-    //     cin.getline(write_buff, kWrite_buff_size);  // reads 64 bytes
-    //                                       // & stores in write buffer
-    //     while (cin.gcount() > 0) {
-    //         if (cin.gcount() == kWrite_buff_size - 1 && cin.fail())
-    //             cin.clear();
-    //         bytes_written = write(socket_filedes, write_buff, cin.gcount());
-    //         clog << "Sent " << bytes_written << " bytes" << endl;
-    //         if (bytes_written == 0) {
-    //             clog << "Server dropped connection" << endl;
-    //             break;
-    //         } else if (bytes_written < 0) {
-    //             cerr << strerror(errno) << endl;
-    //             exit(-1);
-    //         }
-
-    //         cin.getline(write_buff, kWrite_buff_size);
-    //     }
-    // }
-    // Read From Server
-    const size_t kRead_buff_size = 64;
-    char read_buff[kRead_buff_size];
-    int bytes_read;
-    while (true) {
-        bytes_read = read(socket_filedes, read_buff, kRead_buff_size);
-        while (bytes_read > 0) {
-            clog << "Read " << bytes_read << " bytes" << endl;
-            clog.write(read_buff, bytes_read) << endl;
-            total_bytes_received += bytes_read;
-        }
-    }
-
-    if (bytes_read == 0) {
-        clog << "Server Disconnected" << endl;
-        close(socket_filedes);
-        clog << "Bytes Received" << total_bytes_received << endl;
-    }
+    clog << '\n' << "Total Received: " << sBytes_read << " bytes" << endl;
   }
 };
 
