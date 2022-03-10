@@ -69,7 +69,7 @@ class DomServSock : public UnixDomSock {
         continue;                                   // wrong socket name
       }
 
-      clog << "Client Connected" << endl;
+      clog << "Client Connected\n" << endl;
 
       // Find Client Specified File
       ifstream search_file;  // file stream in
@@ -77,8 +77,6 @@ class DomServSock : public UnixDomSock {
       char file_read[kFile_read];  // file read buffer
       int fBytes_read;  // num bytes read for file path
       fBytes_read = read(client_req_filedes, file_read, kFile_read);
-      clog << "File Path Received: " << " (" << fBytes_read
-           << " bytes)" << endl;
       search_file.open(file_read);
       if (search_file.fail()) {
         //   clog << file_read << endl;
@@ -89,32 +87,33 @@ class DomServSock : public UnixDomSock {
 
       // Data Reception from Client
       bytes_read = read(client_req_filedes, read_buff, kRead_buff_size);
-      clog << "Search Term Received: " << " (" << bytes_read << " bytes)"
-           << endl;
-      clog << "Search Term: " << read_buff << endl;
+      clog << "Search Term: " << read_buff << '\n' << endl;
 
       // Search File for Client Request
+      clog << "Sending Results to Client" << endl;
       ssize_t tBytes_written;
       ssize_t bytes_written;  // bytes sent
       std::string search = read_buff;
       std::string line;
       std::string results;
+      bool found_term = false;
       while (getline(search_file, line)) {
-        if (line.find(search)) {
+        if (line.find(search) != std::string::npos) {
           bytes_written = write(client_req_filedes, line.c_str(),
                                 sizeof(line));
-          results += line;
-          tBytes_written += bytes_written;
+          clog << "Results: " << line << endl;
+          found_term = true;
+          break;
         }
-        break;
       }
 
-      // Send Results to Client
-      clog << "Sending Results to Client" << endl;
-      // clog << "Results: " << results << endl;
+      if (!found_term) {
+        std::string not_found = "\"" + search + "\"" + " was not found";
+        bytes_written = write(client_req_filedes, not_found.c_str(),
+                              sizeof(not_found));
+      }
 
-      // clog << endl << "Total Saved: " << sizeof(results) << " bytes" << endl;
-      clog << '\n' << "Total Sent: " << tBytes_written << " bytes" << endl;
+      clog << '\n' << "Total Sent: " << sizeof(line) << " bytes" << endl;
     }
   }
 };

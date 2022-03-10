@@ -51,21 +51,20 @@ class DomClntSock : public UnixDomSock {
                                                 // connect properly
     exit(-1);
     }
+    clog << "Connected to Server\n" << endl;
 
     // Write File Name to Server
     ssize_t fBytes_written = write(socket_filedes, file, sizeof(file_name));
-    clog << "File Path Sent: " << file_name
-         << " (" << fBytes_written << " bytes)" << endl;
+    clog << "File Path Sent: " << file << endl;
 
     // Write Query to Server
     ssize_t sBytes_written = write(socket_filedes, search, sizeof(search_term));
-    clog << "Search Query Sent: " << search_term << endl
-         << sBytes_written << " bytes" << endl;
+    clog << "Search Query Sent: " << search << '\n' << endl;
 
-    // Read Results from Server
+    // Read Result from Server
     const size_t kServ_read = 64;
     char result[kServ_read];
-    clog << "Results Received from Server!" << endl;
+    clog << "Results Received from Server" << endl;
     ssize_t sBytes_read = read(socket_filedes, result, kServ_read);
     std::string results = result;
     clog << results << endl;
