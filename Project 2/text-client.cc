@@ -21,6 +21,6 @@ int main(int argc, char *argv[]) {
 
   DomClntSock dcs(argv[1]);   // builds new client
   dcs.getFileName(argv[2]);   // gets file path for search
-  dcs.getSearchTerm(argv[3]);     // gets search string
+  dcs.getSearchTerm(argv[3]); // gets search string
   dcs.RunClnt();              // runs the client
 }
