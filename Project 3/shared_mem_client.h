@@ -1,8 +1,8 @@
-#ifndef SHRMEM_SERVER_H_
-#define SHRMEM_SERVER_H_
+#ifndef SHARED_MEM_CLIENT_H_
+#define SHARED_MEM_CLIENT_H_
 // Copyright 2022 Charles Simons
 // Written for Project 3 - CSCE 311 @ U of SC
-// Modified from code written by Dr. Jeremy Lewis
+// Based on code written by Dr. Jeremy Lewis
 // (instructor for CSCE 311, Spring 2022)
 
 #include <sys/mman.h>
@@ -26,4 +26,4 @@ const char mem_name[] = "shared_memory1";  // name of shared memory file
 // Open shared memory
 
 
-#endif  // SHRMEM_SERVER_H_
+#endif  // SHARED_MEM_CLIENT_H_
