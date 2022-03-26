@@ -1,5 +1,5 @@
-#ifndef SEMAPHORE_H_
-#define SEMAPHORE_H_
+#ifndef NAMED_SEMAPHORE_H_
+#define NAMED_SEMAPHORE_H_
 // Copyright 2022 Charles Simons
 // Written for Project 3 - CSCE 311 @ U of SC
 // Based on code written by Dr. Jeremy Lewis
@@ -46,4 +46,4 @@ class Semaphore {
   ::sem_t* sem_ptr_;
 };
 
-#endif  // SEMAPHORE_H_
+#endif  // NAMED_SEMAPHORE_H_

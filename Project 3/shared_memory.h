@@ -8,8 +8,15 @@
 #include <cstddef>
 
 struct SharedMemory {
-    size_t buffer_length;
-    char buffer[1];
+    const size_t kSearch_len = 512;  // max size for search string
+    char search_str[kSearch_len];
+    const size_t kPath_len = 512;  // max size text file path
+    char file_path[kPath_len];
+    const size_t kBuffer_length = (4096 << 2) - 4 - 512 - 4 - 512;
+    // Four pages of memory, minus 1024 bytes for search string and file path
+    // and minus 8 bytes for their respective sizes
+
+    char buffer[kBuffer_length];
 };
 
 

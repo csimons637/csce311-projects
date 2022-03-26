@@ -16,14 +16,29 @@
 #include <iostream>
 #include <string>
 
+#include "./shared_memory.h"
+#include "./named_semaphore.h"
+
 using std::string;
 using std::cout;
 using std::clog;
 using std::endl;
 
-const char mem_name[] = "shared_memory1";  // name of shared memory file
+// Server manages semaphore
 
-// Open shared memory
 
+class SharedMemServer {
+ public:
+  SharedMemServer(const char mem_name[], const char sem_name[]);
+
+  ~SharedMemServer();
+
+ private:
+  string mem_name_;  // name of shared memory file
+
+  SharedMemory *storage;  // shared memory file
+
+  Semaphore mem_sem_;  // memory semaphore
+};
 
 #endif  // SHARED_MEM_SERVER_H_
