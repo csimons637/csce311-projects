@@ -22,27 +22,25 @@
 using std::string;
 using std::cout;
 using std::clog;
+using std::cerr;
 using std::endl;
 
 // Client should create shared memory
 
 class SharedMemClient {
  public:
-  explicit SharedMemClient(const char* kSHM_Name, const char* semaphore_name);
+  SharedMemClient(const char mem_name[], const char sem_name[]);
 
   ~SharedMemClient();
 
+  // send to server
+
  private:
-  const char mem_name;  // name of shared memory file
+  string mem_name_;  // name of shared memory file
 
   SharedMemory *storage;  // shared memory file
 
-  Semaphore mem_sem;  // memory semaphore
+  Semaphore mem_sem_;  // memory semaphore
 };
-
-
-
-
-
 
 #endif  // SHARED_MEM_CLIENT_H_

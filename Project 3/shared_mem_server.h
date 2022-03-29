@@ -22,16 +22,18 @@
 using std::string;
 using std::cout;
 using std::clog;
+using std::cerr;
 using std::endl;
 
 // Server manages semaphore
-
 
 class SharedMemServer {
  public:
   SharedMemServer(const char mem_name[], const char sem_name[]);
 
   ~SharedMemServer();
+
+  int readFromClient(const char mem_name[]);
 
  private:
   string mem_name_;  // name of shared memory file
