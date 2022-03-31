@@ -22,6 +22,7 @@ static vector<string> thread_vectors[4];
 SharedMemServer::SharedMemServer(const char sem_name[])
     : mem_sem_(sem_name) {
     memorySem = sem_open(mem_sem_.c_str(), O_CREAT, O_EXCL, 0);
+    cout << "Server Started" << endl;
     sem_post(memorySem);
 }
 
@@ -122,6 +123,8 @@ int SharedMemServer::ToFromClient() {
     strncpy(search_str, storage->search_str, sizeof(storage->search_str));
     strncpy(term_to_search, search_str, sizeof(search_str));
 
+    cout << "Opening: " << storage->file_path << endl;
+
     // 4. Copy path text file from memory to local variable
     strncpy(file_path, storage->file_path, sizeof(storage->file_path));
     strncpy(path_to_file, file_path, sizeof(file_path));
@@ -146,6 +149,8 @@ int SharedMemServer::ToFromClient() {
         ret_code = pthread_join(threads[i], nullptr);
     }
 
+    cout << "File Closed" << endl;
+
     // 7. Write results to shared memory
     for (vector<string> v : thread_vectors) {
         // For each vector<string>, strncpy each element to shared memory
@@ -153,6 +158,8 @@ int SharedMemServer::ToFromClient() {
             strncpy(storage->buffer, v.at(i).c_str(), v.at(i).size());
         }
     }
+    cout << "Memory Closed" << endl;
+    munmap(storage, sizeof(storage));
 
     // 8. Release memory semaphore
     sem_post(memorySem);
