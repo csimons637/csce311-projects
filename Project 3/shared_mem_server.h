@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "./shared_memory.h"
 #include "./named_semaphore.h"
@@ -24,23 +25,26 @@ using std::cout;
 using std::clog;
 using std::cerr;
 using std::endl;
+using std::vector;
 
 // Server manages semaphore
 
 class SharedMemServer {
  public:
-  SharedMemServer(const char mem_name[], const char sem_name[]);
+  explicit SharedMemServer(const char sem_name[]);
 
   ~SharedMemServer();
 
-  int readFromClient(const char mem_name[]);
+  int ToFromClient();  // comms to and from client (shared mem)
+
+  static void* searchFile(void* ptr);
 
  private:
   string mem_name_;  // name of shared memory file
 
-  SharedMemory *storage;  // shared memory file
+  string mem_sem_;  // name of semaphore
 
-  Semaphore mem_sem_;  // memory semaphore
+  SharedMemory *storage;  // shared memory file
 };
 
 #endif  // SHARED_MEM_SERVER_H_

@@ -5,39 +5,155 @@
 
 #include "./shared_mem_server.h"
 
+#define THREAD_COUNT 4;
+
+const char mem_name_[] = "/shared_memory1";  // name of shared memory file
+sem_t* memorySem;
+
+char path_to_file[1];
+char term_to_search[1];
+char file_text[1];
+
+static vector<string> thread_vectors[4];
+
 // Server controls the semaphore
-
-
-// Gets shared memory semaphore name
-// *semaphore created and locked by client
-SharedMemServer::SharedMemServer(const char mem_name[], const char sem_name[])
-                                : mem_name_(mem_name), mem_sem_(sem_name) {
-    mem_sem_.Open();
+// Creates semaphore using hardcoded semaphore name
+// Then unlocks the semaphore
+SharedMemServer::SharedMemServer(const char sem_name[])
+    : mem_sem_(sem_name) {
+    memorySem = sem_open(mem_sem_.c_str(), O_CREAT, O_EXCL, 0);
+    sem_post(memorySem);
 }
 
-// Opens shared memory and gets file descriptor
-int SharedMemServer::readFromClient(const char mem_name[]) {
-    string file;    // file to search
-    string search;  // for search string
+// Search the file text for matching strings
+void *SharedMemServer::searchFile(void *ptr) {
+    // Tentative methodology; feels hacky and underdeveloped
+    // Ask Lewis for better direction
+    vector<string> thread = thread_vectors[reinterpret_cast<int>(ptr)];
+    if (reinterpret_cast<int>(ptr) == 0) {
+        int i = 0;
+        while (i < (sizeof(file_text)/4)) {
+            // need substring from file_text
+            string search = term_to_search;
+            string text = file_text;
+            string line = text.substr(i, search.length());  // Get one line
+            // if a subline matches, store entire line in vector
+            if (line == search) {
+                // Add matching line to vector<string> thread and append '\n'
+                thread.push_back(text.substr(line.length() - 32,
+                                            line.length() + 32) + '\n');
+            }
+            i += sizeof(line);
+        }
+    } else if (reinterpret_cast<int>(ptr) == 1) {
+        int i = (sizeof(file_text)/4) - 1;
+        while (i < (sizeof(file_text)/2)) {
+            // need substring from file_text
+            string search = term_to_search;
+            string text = file_text;
+            string line = text.substr(i, search.length());  // Get one line
+            // if a subline matches, store entire line in vector
+            if (line == search) {
+                // Add matching line to vector<string> thread and append '\n'
+                thread.push_back(text.substr(line.length() - 32,
+                                            line.length() + 32) + '\n');
+            }
+            i += sizeof(line);
+        }
+    } else if (reinterpret_cast<int>(ptr) == 2) {
+        int i = ((sizeof(file_text)/2)) - 1;
+        while (i < ((3/4) * (sizeof(file_text)))) {
+            // need substring from file_text
+            string search = term_to_search;
+            string text = file_text;
+            string line = text.substr(i, search.length());  // Get one line
+            // if a subline matches, store entire line in vector
+            if (line == search) {
+                // Add matching line to vector<string> thread and append '\n'
+                thread.push_back(text.substr(line.length() - 32,
+                                            line.length() + 32) + '\n');
+            }
+            i += sizeof(line);
+        }
 
-    int sharedMem = ::shm_open(mem_name_.c_str(), O_RDWR, 0);
-    if (sharedMem < 0) {  // On failure to open shared memory
-        cerr << ::strerror(errno) << endl;
+    } else if (reinterpret_cast<int>(ptr) == 3) {
+        int i = ((3/4) * (sizeof(file_text))) - 1;
+        while (i < (sizeof(file_text))) {
+            // need substring from file_text
+            string search = term_to_search;
+            string text = file_text;
+            string line = text.substr(i, search.length());  // Get one line
+            // if a subline matches, store entire line in vector
+            if (line == search) {
+                // Add matching line to vector<string> thread and append '\n'
+                thread.push_back(text.substr(line.length() - 32,
+                                            line.length() + 32) + '\n');
+            }
+            i += sizeof(line);
+        }
+    }
+}
+
+// Open shared memory and get file descriptor
+int SharedMemServer::ToFromClient() {
+    // 1. Get file descriptor
+    sem_wait(memorySem);
+    char search_str[sizeof(storage->search_str)];  // search string buffer
+    char file_path[sizeof(storage->file_path)];  // file path buffer
+    char buffer[sizeof(storage->buffer)];  // search text buffer
+    int mem_fd = ::shm_open(mem_name_.c_str(), O_RDWR, 0);
+    if (mem_fd < 0) {
+        cerr << strerror(errno) << endl;
         return errno;
     }
 
-    // Get copy of mapped meory
-    SharedMemory* storage = static_cast<SharedMemory*>(
-            ::mmap(nullptr, sizeof(SharedMemory),
-                    PROT_READ | PROT_WRITE,
-                    MAP_SHARED, sharedMem, 0));
+    // 2. Get a copy of mapped memory
+    SharedMemory* storage = static_cast<SharedMemory*>
+    (::mmap(nullptr, sizeof(SharedMemory),
+            PROT_READ | PROT_WRITE,
+            MAP_SHARED, mem_fd, 0));
+    // 2a. Return error state if memory mapping fails
     if (storage == MAP_FAILED) {
-        cerr << ::strerror(errno) << endl;
+        cerr << strerror(errno) << endl;
         return errno;
     }
 
-    // Get file path and search string from shared memory
+    // 3. Copy search string from memory into local variable
+    strncpy(search_str, storage->search_str, sizeof(storage->search_str));
+    strncpy(term_to_search, search_str, sizeof(search_str));
+
+    // 4. Copy path text file from memory to local variable
+    strncpy(file_path, storage->file_path, sizeof(storage->file_path));
+    strncpy(path_to_file, file_path, sizeof(file_path));
+
+    // 5. Copy search text from shared memory
+    strncpy(buffer, storage->buffer, sizeof(storage->buffer));
+    strncpy(file_text, buffer, sizeof(buffer));
+
+    // 6. Search file for search string using four
+    // threads for search; each taking 1/4 of file
+    pthread_t threads[4];
+    int thread_args[4];
+    int ret_code;
+
+    for (int i = 0; i < 4; i++) {
+        thread_args[i] = i;
+        ret_code = pthread_create(&threads[i], nullptr,
+                            searchFile, &thread_args[i]);
+    }
+
+    for (int i = 0; i < 4; i++) {
+        ret_code = pthread_join(threads[i], nullptr);
+    }
+
+    // 7. Write results to shared memory
+    for (vector<string> v : thread_vectors) {
+        // For each vector<string>, strncpy each element to shared memory
+        for (int i = 0; i < v.size(); i++) {
+            strncpy(storage->buffer, v.at(i).c_str(), v.at(i).size());
+        }
+    }
+
+    // 8. Release memory semaphore
+    sem_post(memorySem);
 }
-
-
-const char mem_name[] = "shared_memory1";  // name of shared memory file
