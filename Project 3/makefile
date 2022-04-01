@@ -6,7 +6,6 @@ flags = -std=c++17
 flags += -Wall
 flags += -g
 flags += pthread
-flags += -lrt
 
 link = $(cc) $(flags) -o
 compile = $(cc) $(flags) -c
@@ -16,11 +15,11 @@ obj = text-client text-server
 
 # client compilation
 text-client : text-client.cc
-			$(link) $@ $^
+			$(link) $@ $^ -lrt
 
 # server compilation
 text-server : text-server.cc
-			$(link) $@ $^
+			$(link) $@ $^ -lrt
 
 # directory clean-up
 .PHONY : clean

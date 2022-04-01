@@ -8,11 +8,10 @@
 #include <cstddef>
 
 struct SharedMemory {
-    char search_str[512];
-    char file_path[512];
-    char buffer[(4096 << 2) - 4 - 512 - 4 - 512];
-    // Four pages of memory, minus 1024 bytes for search string and file path
-    // and minus 8 bytes for their respective sizes
+    size_t buffer_size;
+    char search_str[128];  // 128 bytes for search string
+    char file_path[128];  // 128 bytes for file_path (overly generous)
+    char buffer[1];  // size will expand later; c++ doesn't check bounding
 };
 
 

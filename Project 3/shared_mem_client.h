@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <iostream>
+#include <fstream>
 #include <string>
 
 #include "./shared_memory.h"
@@ -24,6 +24,7 @@ using std::cout;
 using std::clog;
 using std::cerr;
 using std::endl;
+using std::ifstream;
 
 // Client should create shared memory
 /*
