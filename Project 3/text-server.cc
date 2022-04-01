@@ -158,9 +158,16 @@ int SharedMemServer::ToFromClient() {
             strncpy(storage->buffer, v.at(i).c_str(), v.at(i).size());
         }
     }
+    // 7a. Release copy of shared memory
     cout << "Memory Closed" << endl;
-    munmap(storage, sizeof(storage));
+    int result = ::munmap(storage, sizeof(storage));
+    if (result < 0) {
+        cerr << strerror << endl;
+        return errno;
+    }
 
     // 8. Release memory semaphore
     sem_post(memorySem);
+
+    // 9. sem_wait; destroy semaphore when client is done with it
 }

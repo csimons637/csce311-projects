@@ -10,7 +10,6 @@
 struct SharedMemory {
     char search_str[512];
     char file_path[512];
-
     char buffer[(4096 << 2) - 4 - 512 - 4 - 512];
     // Four pages of memory, minus 1024 bytes for search string and file path
     // and minus 8 bytes for their respective sizes

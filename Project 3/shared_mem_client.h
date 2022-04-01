@@ -26,21 +26,26 @@ using std::cerr;
 using std::endl;
 
 // Client should create shared memory
+/*
+*  Set buffer size to hold entire text file
+*  using stat function to get size of file
+*/
 
 class SharedMemClient {
  public:
-  SharedMemClient(const char mem_name[], const char sem_name[]);
+  SharedMemClient(const char sem_name[], const char file_path[]);
 
   ~SharedMemClient();
 
-  // send to server
+  int writeToMem();  // stores file path, search term
+                     // and text file in shared memory
 
  private:
-  string mem_name_;  // name of shared memory file
+  string file_path_;  // path to file
 
   SharedMemory *storage;  // shared memory file
 
-  Semaphore mem_sem_;  // memory semaphore
+  string mem_sem_;  // memory semaphore
 };
 
 #endif  // SHARED_MEM_CLIENT_H_

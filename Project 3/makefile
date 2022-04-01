@@ -5,6 +5,7 @@ cc = g++
 flags = -std=c++17
 flags += -Wall
 flags += -g
+flags += pthread
 flags += -lrt
 
 link = $(cc) $(flags) -o
