@@ -6,7 +6,7 @@
 #include "./shared_mem_client.h"
 
 const char mem_name_[] = "shared_memory1";  // name of shared memory file
-sem_t* memorySem;
+
 // Client creates and names the shared memory
 
 int main(int argc, char* argv[]) {

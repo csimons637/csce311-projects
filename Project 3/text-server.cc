@@ -8,7 +8,6 @@
 #define THREAD_COUNT 4;
 
 const char mem_name_[] = "/shared_memory1";  // name of shared memory file
-sem_t* memorySem;
 
 char path_to_file[1];
 char term_to_search[1];
