@@ -7,7 +7,7 @@
 
 void Semaphore::Create(int count) {
     // creates semaphore with name
-    sem_ptr_ == sem_open(name.c_str(), O_CREAT,
+    sem_ptr_ == sem_open(name_.c_str(), O_CREAT,
                         S_IRGRP | S_IRUSR | S_IWGRP | S_IWUSR,
                         count);
 
@@ -25,7 +25,7 @@ void Semaphore::Create(int count) {
 }
 
 void Semaphore::Open() {
-    sem_ptr_ = sem_open(name.c_str(), 0, 0, 0);
+    sem_ptr_ = sem_open(name_.c_str(), 0, 0, 0);
 
     if (sem_ptr_ == SEM_FAILED) {
         cerr << strerror(errno) << endl;

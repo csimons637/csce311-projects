@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <cassert>
 #include <fstream>
 #include <string>
 

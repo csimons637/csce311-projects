@@ -5,6 +5,7 @@ cc = g++
 flags = -std=c++17
 flags += -Wall
 flags += -g
+flags += -pthread
 # flags += lpthread
 
 link = $(cc) $(flags) -o
@@ -19,7 +20,7 @@ text-client : text-client.cc named_semaphore.cc
 
 # server compilation
 text-server : text-server.cc named_semaphore.cc
-			$(link) $@ $^ -lpthread -lrt
+			$(link) $@ $^ -lrt
 
 # directory clean-up
 .PHONY : clean

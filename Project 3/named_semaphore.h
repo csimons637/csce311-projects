@@ -19,19 +19,20 @@ using std::endl;
 
 class Semaphore {
  public:
-  // "name" is a null-terminated string, beginning with a '/'
+  // "name_" is a null-terminated string, beginning with a '/'
   // "count" is the starting value for the semaphore
-  explicit Semaphore(const char name[]) : name(std::string(name)),
+  explicit Semaphore(const char name[]) : name_(std::string(name)),
                     sem_ptr_(nullptr) {
   }
 
-  explicit Semaphore(const std::string& name) : name(name), sem_ptr_(nullptr) {
+  explicit Semaphore(const std::string& name) : name_(name), sem_ptr_(nullptr) {
   }
 
 
   void Create(int count);
 
   inline void Destroy() {
+    ::sem_unlink(name_.c_str());
   }
 
   void Open();
@@ -45,7 +46,7 @@ class Semaphore {
   }
 
  private:
-  std::string name;
+  std::string name_;
   ::sem_t* sem_ptr_;
 };
 

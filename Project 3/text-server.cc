@@ -15,7 +15,7 @@ char file_text[1];
 
 static vector<string> thread_vectors[4];
 
-int main(int argc, char*argv[]) {
+int main(int argc, char** argv) {
     SharedMemServer();
 }
 
@@ -29,12 +29,17 @@ SharedMemServer::SharedMemServer() : memorySem(mem_sem_) {
     ToFromClient();
 }
 
+SharedMemServer::~SharedMemServer() {
+    memorySem.Destroy();
+}
+
 // Search the file text for matching strings
 void *SharedMemServer::searchFile(void *ptr) {
     // Tentative methodology; feels hacky and underdeveloped
     // Ask Lewis for better direction
-    vector<string> thread = thread_vectors[reinterpret_cast<int>(ptr)];
-    if (reinterpret_cast<int>(ptr) == 0) {
+    int index = *reinterpret_cast<int*>(ptr);
+    vector<string> thread = thread_vectors[index];
+    if (reinterpret_cast<int*>(ptr) == 0) {
         int i = 0;
         while (i < (sizeof(file_text)/4)) {
             // need substring from file_text
@@ -49,7 +54,7 @@ void *SharedMemServer::searchFile(void *ptr) {
             }
             i += sizeof(line);
         }
-    } else if (reinterpret_cast<int>(ptr) == 1) {
+    } else if (index == 1) {
         int i = (sizeof(file_text)/4) - 1;
         while (i < (sizeof(file_text)/2)) {
             // need substring from file_text
@@ -64,7 +69,7 @@ void *SharedMemServer::searchFile(void *ptr) {
             }
             i += sizeof(line);
         }
-    } else if (reinterpret_cast<int>(ptr) == 2) {
+    } else if (index == 2) {
         int i = ((sizeof(file_text)/2)) - 1;
         while (i < ((3/4) * (sizeof(file_text)))) {
             // need substring from file_text
@@ -80,7 +85,7 @@ void *SharedMemServer::searchFile(void *ptr) {
             i += sizeof(line);
         }
 
-    } else if (reinterpret_cast<int>(ptr) == 3) {
+    } else if (index == 3) {
         int i = ((3/4) * (sizeof(file_text))) - 1;
         while (i < (sizeof(file_text))) {
             // need substring from file_text
@@ -174,6 +179,5 @@ int SharedMemServer::ToFromClient() {
 
     // 9. sem_wait; destroy semaphore when client is done with it
     memorySem.Down();
-    memorySem.Destroy();
     exit(0);
 }

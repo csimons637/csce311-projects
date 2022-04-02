@@ -9,15 +9,15 @@ const char mem_name_[] = "shared_memory1";  // name of shared memory file
 
 // Client creates and names the shared memory
 
-int main(int argc, char* argv[]) {
-    SharedMemClient(argv[1], argv[2]);
-}
-
 SharedMemClient::SharedMemClient(const char sem_name[], const char file_path[])
         : memorySem(mem_sem_), file_path_(file_path) {
     memorySem.Open();
     memorySem.Down();
     writeToMem();
+}
+
+SharedMemClient::~SharedMemClient() {
+    memorySem.Destroy();
 }
 
 int SharedMemClient::writeToMem() {
@@ -87,3 +87,7 @@ int SharedMemClient::writeToMem() {
     exit(0);
 }
 
+int main(int argc, char** argv) {
+    assert(argc == 3 && "Usage: ./text-cient <semaphore_name> <file_path>");
+    SharedMemClient(argv[1], argv[2]);
+}
