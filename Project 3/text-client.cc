@@ -9,10 +9,15 @@ const char mem_name_[] = "shared_memory1";  // name of shared memory file
 sem_t* memorySem;
 // Client creates and names the shared memory
 
+int main(int argc, char* argv[]) {
+    SharedMemClient(argv[1], argv[2]);
+}
+
 SharedMemClient::SharedMemClient(const char sem_name[], const char file_path[])
-        : mem_sem_(sem_name), file_path_(file_path) {
-    memorySem = sem_open(mem_sem_.c_str(), O_CREAT, 0);
-    sem_wait(memorySem);
+        : memorySem(mem_sem_), file_path_(file_path) {
+    memorySem.Open();
+    memorySem.Down();
+    writeToMem();
 }
 
 int SharedMemClient::writeToMem() {
@@ -58,11 +63,27 @@ int SharedMemClient::writeToMem() {
         strncpy(storage->buffer, line.c_str(), sizeof(line));
     }
     reader.close();
-    sem_post(memorySem);
+    memorySem.Up();
 
     // 5. sem_wait and read out contents of buffer
-    sem_wait(memorySem);
+    memorySem.Up();
+    char output[sizeof(storage->buffer)];
+    strncpy(output, storage->buffer, sizeof(storage->buffer));
+
+    cout << output << endl;
 
     // 6. Close and destroy memory; sem_post
+    // Error messages if unmapping or deletion fail
+    // Releases shared memory
+    if (munmap(storage, sizeof(SharedMemory)) < 0) {
+        cerr << strerror(errno) << endl;
+    }
+    // Deletes shared memory mapping
+    if (shm_unlink(mem_name_) < 0) {
+        cerr << strerror(errno) << endl;
+    }
+
+    memorySem.Down();
+    exit(0);
 }
 

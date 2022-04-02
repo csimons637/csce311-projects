@@ -31,7 +31,7 @@ using std::vector;
 
 class SharedMemServer {
  public:
-  explicit SharedMemServer(const char sem_name[]);
+  explicit SharedMemServer();
 
   ~SharedMemServer();
 
@@ -45,6 +45,8 @@ class SharedMemServer {
   string mem_sem_;  // name of semaphore
 
   SharedMemory *storage;  // shared memory file
+
+  Semaphore memorySem;
 };
 
 #endif  // SHARED_MEM_SERVER_H_

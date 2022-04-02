@@ -16,14 +16,18 @@ char file_text[1];
 
 static vector<string> thread_vectors[4];
 
+int main(int argc, char*argv[]) {
+    SharedMemServer();
+}
+
 // Server controls the semaphore
 // Creates semaphore using hardcoded semaphore name
 // Then unlocks the semaphore
-SharedMemServer::SharedMemServer(const char sem_name[])
-    : mem_sem_(sem_name) {
-    memorySem = sem_open(mem_sem_.c_str(), O_CREAT, O_EXCL, 0);
+SharedMemServer::SharedMemServer() : memorySem(mem_sem_) {
+    memorySem.Create(0);
+    memorySem.Open();
     cout << "Server Started" << endl;
-    sem_post(memorySem);
+    ToFromClient();
 }
 
 // Search the file text for matching strings
@@ -98,7 +102,7 @@ void *SharedMemServer::searchFile(void *ptr) {
 // Open shared memory and get file descriptor
 int SharedMemServer::ToFromClient() {
     // 1. Get file descriptor
-    sem_wait(memorySem);
+    memorySem.Down();
     char search_str[sizeof(storage->search_str)];  // search string buffer
     char file_path[sizeof(storage->file_path)];  // file path buffer
     char buffer[sizeof(storage->buffer)];  // search text buffer
@@ -167,7 +171,10 @@ int SharedMemServer::ToFromClient() {
     }
 
     // 8. Release memory semaphore
-    sem_post(memorySem);
+    memorySem.Up();
 
     // 9. sem_wait; destroy semaphore when client is done with it
+    memorySem.Down();
+    memorySem.Destroy();
+    exit(0);
 }

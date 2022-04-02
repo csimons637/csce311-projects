@@ -14,6 +14,9 @@
 #include <iostream>
 #include <string>
 
+using std::cerr;
+using std::endl;
+
 class Semaphore {
  public:
   // "name" is a null-terminated string, beginning with a '/'

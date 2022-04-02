@@ -47,6 +47,8 @@ class SharedMemClient {
   SharedMemory *storage;  // shared memory file
 
   string mem_sem_;  // memory semaphore
+
+  Semaphore memorySem;
 };
 
 #endif  // SHARED_MEM_CLIENT_H_
