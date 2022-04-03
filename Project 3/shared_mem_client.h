@@ -35,7 +35,9 @@ using std::ifstream;
 
 class SharedMemClient {
  public:
-  SharedMemClient(const char sem_name[], const char file_path[]);
+  SharedMemClient();
+
+  SharedMemClient(char file_path[], char search_str[]);
 
   ~SharedMemClient();
 
@@ -45,9 +47,11 @@ class SharedMemClient {
  private:
   string file_path_;  // path to file
 
+  string search_str_;
+
   SharedMemory *storage;  // shared memory file
 
-  string mem_sem_;  // memory semaphore
+  string mem_sem_ = "memory_semaphore";  // memory semaphore
 
   Semaphore memorySem;
 };

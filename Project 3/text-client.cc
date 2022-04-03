@@ -9,8 +9,15 @@ const char mem_name_[] = "shared_memory1";  // name of shared memory file
 
 // Client creates and names the shared memory
 
-SharedMemClient::SharedMemClient(const char sem_name[], const char file_path[])
-        : memorySem(mem_sem_), file_path_(file_path) {
+SharedMemClient::SharedMemClient(char file_path[], char search_str[])
+        : memorySem(mem_sem_), file_path_(file_path), search_str_(search_str) {
+    memorySem.Open();
+    memorySem.Down();
+    writeToMem();
+}
+
+SharedMemClient::SharedMemClient()
+        : memorySem(mem_sem_), file_path_("dat/dante.txt") {
     memorySem.Open();
     memorySem.Down();
     writeToMem();
@@ -53,7 +60,10 @@ int SharedMemClient::writeToMem() {
     storage->buffer_size = kBuffer_size;  // sets shared mem's buffer size
     string line;  // to store lines from text file
 
-    // 4a. File read stream into buffer
+    // 4a. Write search string
+    strncpy(storage->search_str, search_str_.c_str(), sizeof(search_str_));
+
+    // 4b. File read stream into buffer
     ifstream reader(file_path_);
     if (!reader.is_open()) {  // error if file not opened/openable
         cerr << strerror(errno) << endl;
@@ -89,6 +99,6 @@ int SharedMemClient::writeToMem() {
 }
 
 int main(int argc, char** argv) {
-    assert(argc == 3 && "Usage: ./text-cient <semaphore_name> <file_path>");
+    assert(argc == 3 && "Usage: ./text-cient <file_path> <search_term>");
     SharedMemClient(argv[1], argv[2]);
 }
