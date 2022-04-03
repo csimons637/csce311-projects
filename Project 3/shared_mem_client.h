@@ -47,7 +47,7 @@ class SharedMemClient {
 
   SharedMemory *storage;  // shared memory file
 
-  string mem_sem_;  // memory semaphore
+  string mem_sem_ = "memory_semaphore";  // memory semaphore
 
   Semaphore memorySem;
 };

@@ -5,8 +5,6 @@
 
 #include "./shared_mem_server.h"
 
-#define THREAD_COUNT 4;
-
 const char mem_name_[] = "/shared_memory1";  // name of shared memory file
 
 char path_to_file[1];
@@ -39,7 +37,7 @@ void *SharedMemServer::searchFile(void *ptr) {
     // Ask Lewis for better direction
     int index = *reinterpret_cast<int*>(ptr);
     vector<string> thread = thread_vectors[index];
-    if (reinterpret_cast<int*>(ptr) == 0) {
+    if (index == 0) {
         int i = 0;
         while (i < (sizeof(file_text)/4)) {
             // need substring from file_text

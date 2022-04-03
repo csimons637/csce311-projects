@@ -31,7 +31,7 @@ using std::vector;
 
 class SharedMemServer {
  public:
-  explicit SharedMemServer();
+  SharedMemServer();
 
   ~SharedMemServer();
 
