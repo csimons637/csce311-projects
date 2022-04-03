@@ -3,7 +3,7 @@
 cc = g++
 
 flags = -std=c++17
-flags += -Wall
+# flags += -Wall
 flags += -g
 flags += -pthread
 # flags += lpthread
@@ -15,11 +15,11 @@ compile = $(cc) $(flags) -c
 obj = text-client text-server
 
 # client compilation
-text-client : text-client.cc named_semaphore.cc
+text-client : client.cc named_semaphore.cc
 			$(link) $@ $^ -lrt
 
 # server compilation
-text-server : text-server.cc named_semaphore.cc
+text-server : server.cc named_semaphore.cc
 			$(link) $@ $^ -lrt
 
 # directory clean-up
