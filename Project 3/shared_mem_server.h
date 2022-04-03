@@ -42,7 +42,7 @@ class SharedMemServer {
  private:
   string mem_name_;  // name of shared memory file
 
-  string mem_sem_;  // name of semaphore
+  string mem_sem_ = "memory_semaphore";  // name of semaphore
 
   SharedMemory *storage;  // shared memory file
 

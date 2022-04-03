@@ -22,6 +22,7 @@ SharedMemClient::~SharedMemClient() {
 
 int SharedMemClient::writeToMem() {
     // 1. Open shared memory
+    cout << "Shared Memory Opened" << endl;
     int shm_fd = shm_open(mem_name_, O_CREAT, O_RDWR);
     // 1a. Retrun error if opening fails
     if (shm_fd < 0) {
