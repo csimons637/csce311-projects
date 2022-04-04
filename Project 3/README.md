@@ -1,7 +1,6 @@
-## CSCE 311 Project 3
+## CSCE 311 Project 3 - IPC Using Shared Memory
 ## Charles Simons - CSCE 311-001
 
-## IPC Demo Using Shared Memory
 
 # Included Files
     - makefile
