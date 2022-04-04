@@ -3,20 +3,20 @@
 
 
 # Included Files
-    * makefile
-    * shared_mem.h
-    * named_semphore.h
-    * shm_server.h
-    * shm_client.h
-    * server.cc
-    * client.cc
-    * named_semaphore.cc
-    * ./dat
-        * anna_karenina.txt
-        * dante.txt
-        * lorem_ipsum.txt
-    * README.md
-    * proj3.pdf
+    - makefile
+    - shared_mem.h
+    - named_semphore.h
+    - shm_server.h
+    - shm_client.h
+    - server.cc
+    - client.cc
+    - named_semaphore.cc
+    - ./dat
+        - anna_karenina.txt
+        - dante.txt
+        - lorem_ipsum.txt
+    - README.md
+    - proj3.pdf
 # File Relationships
     - makefile:
         Builds executables (text-server and text-client) and cleans working directory
