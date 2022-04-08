@@ -21,7 +21,8 @@ main(int argc, char *argv[])
     if (fd == -1)
         printf("open");
 
-    addr = mmap(NULL, strlen(argv[2]), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    addr = mmap(NULL, strlen(argv[2]),
+                PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (addr == MAP_FAILED)
         printf("mmap");
 
