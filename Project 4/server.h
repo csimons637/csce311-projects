@@ -32,7 +32,7 @@ class ServerSocket : public UnixDomSock {
       int sock_fd;
       int client_req_fd;
 
-      // Socket Creation
+      // Socket creation
       if ((sock_fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
           std::cerr << strerror(errno) << std::endl;
           exit(-1);
