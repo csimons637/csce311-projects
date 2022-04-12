@@ -28,8 +28,7 @@ class ClientSocket : UnixDomSock {
   using UnixDomSock::UnixDomSock;
   // const char *file_path;
 
-  void RunClient(const char file_path[]) {
-      std::string path = file_path;
+  void RunClient(const char *file_path) {
       int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
       if (sock_fd < 0) {
           std::cerr << strerror(errno) << std::endl;
@@ -47,7 +46,7 @@ class ClientSocket : UnixDomSock {
 
       // Send file path to server
       std::cout << "Sending File Path to Server" << std::endl;
-      write(sock_fd, path.c_str(), sizeof(path));
+      write(sock_fd, file_path, sizeof(file_path));
 
       // Create four threads
       pthread_t threads[THREAD_COUNT];
