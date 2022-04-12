@@ -15,36 +15,39 @@
 // Terminate nominatively with code 0
 
 #include <pthread.h>
+#include <string>
 #include "./UDS.h"
 
 // Number of threads
 #define THREAD_COUNT 4
 
-static int file_position = 0;
+static int file_position = 0;  // used to index through file 1/4 at a time
 
 class ClientSocket : UnixDomSock {
  public:
   using UnixDomSock::UnixDomSock;
-  const char *file_path;
+  // const char *file_path;
 
   void RunClient(const char file_path[]) {
+      std::string path = file_path;
       int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
       if (sock_fd < 0) {
           std::cerr << strerror(errno) << std::endl;
-          exit(-1);
+          exit(errno);
       }
 
       // Connect to server socket
+      std::cout << "Connecting To Server" << std::endl;
       int success = connect(sock_fd,
         reinterpret_cast<const sockaddr*>(&sock_addr_), sizeof(sock_addr_));
       if (success < 0) {
           std::cerr << strerror(errno) << std::endl;
-          exit(-1);
+          exit(errno);
       }
 
       // Send file path to server
       std::cout << "Sending File Path to Server" << std::endl;
-      write(sock_fd, file_path, sizeof(file_path));
+      write(sock_fd, path.c_str(), sizeof(path));
 
       // Create four threads
       pthread_t threads[THREAD_COUNT];

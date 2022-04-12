@@ -41,7 +41,7 @@ class ServerSocket : public UnixDomSock {
           std::cerr << strerror(errno) << std::endl;
           exit(-1);
       }
-    std::cout << "Client Request Received" << std::endl
+    std::cout << "Awaiting Client Request" << std::endl
               << "Maximum CLient Connections: "
               << max_client_connects << std::endl;
 
@@ -69,7 +69,7 @@ class ServerSocket : public UnixDomSock {
             continue;
         }
 
-        std::cout << "Client Connected" << std::endl;
+        std::cout << "Client Request Received" << std::endl;
     }
 
     // Read file path from client
