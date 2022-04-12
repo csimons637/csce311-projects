@@ -28,8 +28,7 @@ class ClientSocket : UnixDomSock {
   const char *file_path;
 
   void RunClient(const char file_path[]) {
-      int sock_fd;
-      sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+      int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
       if (sock_fd < 0) {
           std::cerr << strerror(errno) << std::endl;
           exit(-1);

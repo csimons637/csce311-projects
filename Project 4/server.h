@@ -21,6 +21,10 @@
 
 // Wait for further client activity
 
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <string>
 #include "./UDS.h"
 
 class ServerSocket : public UnixDomSock {
@@ -57,10 +61,6 @@ class ServerSocket : public UnixDomSock {
         exit(-1);
     }
 
-    // Read buffer for server socket
-    const size_t kRead = 64;
-    char read_buffer[kRead];
-
     // Accept client request
     while (true) {
         client_req_fd = accept(sock_fd, nullptr, nullptr);
@@ -73,9 +73,24 @@ class ServerSocket : public UnixDomSock {
     }
 
     // Read file path from client
-    read(client_req_fd, read_buffer, kRead);
+    char *read_buffer;
+    read(client_req_fd, read_buffer, sizeof(read_buffer));
 
     // Open file into shared memory
+    int fd = open(read_buffer, O_RDWR);
+    struct stat file_info;
+    size_t file_size = stat(read_buffer, &file_info);
+    char *addr;
+    std::string file = read_buffer;
+    std::cout << "\tOpening: " + file << std::endl;
+    mmap(nullptr, file_size, PROT_READ | PROT_WRITE,
+         MAP_SHARED, fd, 0);
+
+    memset(addr, 0, file_size);  // clears memory for new write
+    std::cout << "\tFile Mapped To Shared Memory" << std::endl;
+    strncpy(addr, read_buffer, file_size);  // copies file to memory
+    std::cout << "\tFile Closed" << std::endl;
+    close(fd);  // closes opened text file
   }
 };
 

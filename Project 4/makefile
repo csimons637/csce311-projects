@@ -14,11 +14,11 @@ compile = $(cc) $(flags) -c
 obj = text-client text-server
 
 # client compilation
-text-client : text-client.cc
+text-client : client.cc
 			$(link) $@ $^ -lrt
 
 # server compilation
-text-server : text-server.cc
+text-server : server.cc
 			$(link) $@ $^ -lrt
 
 # directory clean-up
