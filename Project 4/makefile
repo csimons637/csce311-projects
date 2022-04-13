@@ -14,7 +14,7 @@ compile = $(cc) $(flags) -c
 obj = text-client text-server
 
 # compile both client and server
-all : text-client text-server
+all : clean text-client text-server
 
 # client compilation
 text-client : client.cc
