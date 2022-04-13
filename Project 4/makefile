@@ -13,6 +13,9 @@ compile = $(cc) $(flags) -c
 # for executables (used in clean)
 obj = text-client text-server
 
+# compile both client and server
+all : text-client text-server
+
 # client compilation
 text-client : client.cc
 			$(link) $@ $^ -lrt
