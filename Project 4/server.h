@@ -83,9 +83,8 @@ class ServerSocket : public UnixDomSock {
     char *addr;
     std::string file = read_buffer;
     std::cout << "\tOpening: " + file << std::endl;
-    mmap(nullptr, file_size, PROT_READ | PROT_WRITE,
-         MAP_SHARED, fd, 0);
-
+    addr = reinterpret_cast<char *>(mmap(NULL, file_size,
+            PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
     memset(addr, 0, file_size);  // clears memory for new write
     std::cout << "\tFile Mapped To Shared Memory" << std::endl;
     strncpy(addr, read_buffer, file_size);  // copies file to memory

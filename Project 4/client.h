@@ -18,6 +18,8 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include "./UDS.h"
 
@@ -27,9 +29,13 @@
 class ClientSocket : UnixDomSock {
  public:
   using UnixDomSock::UnixDomSock;
-  // const char *file_path;
 
-  void RunClient(const char *file_path) {
+  static char* addr;  // mem address
+  static char* path;  // file path
+  static int file_len;  // size of file
+
+
+  void RunClient(char *file_path) {
       path = file_path;
       int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
       if (sock_fd < 0) {
@@ -49,6 +55,19 @@ class ClientSocket : UnixDomSock {
       // Send file path to server
       std::cout << "Sending File Path to Server" << std::endl;
       write(sock_fd, file_path, sizeof(file_path));
+
+      // Open file for thread processing
+      int fd = open(path, O_RDWR);
+      struct stat file_info;
+      size_t file_size = stat(path, &file_info);
+      file_len = file_size;
+      std::string file = path;
+      addr = reinterpret_cast<char *>(mmap(NULL, file_size,
+                PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+      if (addr == MAP_FAILED) {
+        std::cerr << strerror(errno) << std::endl;
+        exit(errno);
+      }
 
       // Create four threads
       pthread_t threads[THREAD_COUNT];
@@ -73,40 +92,26 @@ class ClientSocket : UnixDomSock {
   }
 
   static void *caseChange(void *ptr) {
-      // Open file for thread processing
-      int fd = open(path, O_RDWR);
-      struct stat file_info;
-      size_t file_size = stat(path, &file_info);
-      file_len = file_size;
-      char *addr;
-      std::string file = path;
-      addr = mmap(NULL, file_size, PROT_READ | PROT_WRITE,
-                        MAP_SHARED, fd, 0);
-      if (addr == MAP_FAILED) {
-        std::cerr << strerror(errno) << std::endl;
-        exit(errno);
-      }
-
       // id of thread; used for indexing in file
-      int ind = (int)reinterpret_cast<int *>(ptr);
+      int ind = *reinterpret_cast<int *>(ptr);
       // Increment through 1/4 of file and change all lowercase to uppercase
       // File can be treated like an array of char, so
       // for char c in file, use: putchar (toupper(c))
       if (ind == 0) {  // thread 1; first 1/4 of file
-        for (int i = 0; i < file_len/4; i++) {
+        for (int i = 0; i < (1/4)*file_len; i++) {
             char c = addr[i];
             putchar(toupper(c));
             addr[i] = c;
         }
       } else if (ind == 1) {  // thread 2; second 1/4 of file
-        for (int i = file_len/4; i < file_len/2; i++) {
+        for (int i = (1/4)*file_len; i < (2/4)*file_len; i++) {
             char c = addr[i];
             putchar(toupper(c));
             addr[i] = c;
         }
 
       } else if (ind == 2) {  // thread 3; third 1/4 of file
-        for (int i = file_len/2; i < (3/4)*file_len; i++) {
+        for (int i = (2/4)*file_len; i < (3/4)*file_len; i++) {
             char c = addr[i];
             putchar(toupper(c));
             addr[i] = c;
@@ -118,11 +123,8 @@ class ClientSocket : UnixDomSock {
             addr[i] = c;
         }
       }
+      return nullptr;
   }
-
- private:
-  static const char* path;
-  static size_t file_len;
 };
 
 #endif  // CLIENT_H_
