@@ -15,13 +15,14 @@
 // Terminate nominatively with code 0
 
 #include <pthread.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <string>
 #include "./UDS.h"
 
 // Number of threads
 #define THREAD_COUNT 4
-
-static int file_position = 0;  // used to index through file 1/4 at a time
 
 class ClientSocket : UnixDomSock {
  public:
@@ -29,6 +30,7 @@ class ClientSocket : UnixDomSock {
   // const char *file_path;
 
   void RunClient(const char *file_path) {
+      path = file_path;
       int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
       if (sock_fd < 0) {
           std::cerr << strerror(errno) << std::endl;
@@ -71,12 +73,56 @@ class ClientSocket : UnixDomSock {
   }
 
   static void *caseChange(void *ptr) {
+      // Open file for thread processing
+      int fd = open(path, O_RDWR);
+      struct stat file_info;
+      size_t file_size = stat(path, &file_info);
+      file_len = file_size;
+      char *addr;
+      std::string file = path;
+      addr = mmap(NULL, file_size, PROT_READ | PROT_WRITE,
+                        MAP_SHARED, fd, 0);
+      if (addr == MAP_FAILED) {
+        std::cerr << strerror(errno) << std::endl;
+        exit(errno);
+      }
+
+      // id of thread; used for indexing in file
+      int ind = (int)reinterpret_cast<int *>(ptr);
       // Increment through 1/4 of file and change all lowercase to uppercase
       // File can be treated like an array of char, so
       // for char c in file, use: putchar (toupper(c))
-      // Then, increment file_position by 1/4 of file size
-      return nullptr;  // Returns null after completing operation
+      if (ind == 0) {  // thread 1; first 1/4 of file
+        for (int i = 0; i < file_len/4; i++) {
+            char c = addr[i];
+            putchar(toupper(c));
+            addr[i] = c;
+        }
+      } else if (ind == 1) {  // thread 2; second 1/4 of file
+        for (int i = file_len/4; i < file_len/2; i++) {
+            char c = addr[i];
+            putchar(toupper(c));
+            addr[i] = c;
+        }
+
+      } else if (ind == 2) {  // thread 3; third 1/4 of file
+        for (int i = file_len/2; i < (3/4)*file_len; i++) {
+            char c = addr[i];
+            putchar(toupper(c));
+            addr[i] = c;
+        }
+      } else if (ind == 3) {  // thread 4; final 1/4 of file
+        for (int i = (3/4)*file_len; i < file_len; i++) {
+            char c = addr[i];
+            putchar(toupper(c));
+            addr[i] = c;
+        }
+      }
   }
+
+ private:
+  static const char* path;
+  static size_t file_len;
 };
 
 #endif  // CLIENT_H_
