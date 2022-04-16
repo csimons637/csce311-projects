@@ -26,17 +26,14 @@
 // Number of threads
 #define THREAD_COUNT 4
 
+static char *address;  // mem address
+static char *path;
+
 class ClientSocket : UnixDomSock {
  public:
   using UnixDomSock::UnixDomSock;
 
-  static char* addr;  // mem address
-  static char* path;  // file path
-  static int file_len;  // size of file
-
-
   void RunClient(char *file_path) {
-      path = file_path;
       int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
       if (sock_fd < 0) {
           std::cerr << strerror(errno) << std::endl;
@@ -57,13 +54,12 @@ class ClientSocket : UnixDomSock {
       write(sock_fd, file_path, sizeof(file_path));
 
       // Open file for thread processing
-      int fd = open(path, O_RDWR);
+      int fd = open(file_path, O_RDWR);
       struct stat file_info;
-      size_t file_size = stat(path, &file_info);
-      file_len = file_size;
-      std::string file = path;
-      addr = reinterpret_cast<char *>(mmap(NULL, file_size,
+      size_t file_size = stat(file_path, &file_info);
+      char *addr = reinterpret_cast<char *>(mmap(NULL, file_size,
                 PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+      address = addr;
       if (addr == MAP_FAILED) {
         std::cerr << strerror(errno) << std::endl;
         exit(errno);
@@ -94,33 +90,35 @@ class ClientSocket : UnixDomSock {
   static void *caseChange(void *ptr) {
       // id of thread; used for indexing in file
       int ind = *reinterpret_cast<int *>(ptr);
+      struct stat file_info;
+      int file_len = stat(path, &file_info);
       // Increment through 1/4 of file and change all lowercase to uppercase
       // File can be treated like an array of char, so
       // for char c in file, use: putchar (toupper(c))
       if (ind == 0) {  // thread 1; first 1/4 of file
         for (int i = 0; i < (1/4)*file_len; i++) {
-            char c = addr[i];
+            char c = address[i];
             putchar(toupper(c));
-            addr[i] = c;
+            address[i] = c;
         }
       } else if (ind == 1) {  // thread 2; second 1/4 of file
         for (int i = (1/4)*file_len; i < (2/4)*file_len; i++) {
-            char c = addr[i];
+            char c = address[i];
             putchar(toupper(c));
-            addr[i] = c;
+            address[i] = c;
         }
 
       } else if (ind == 2) {  // thread 3; third 1/4 of file
         for (int i = (2/4)*file_len; i < (3/4)*file_len; i++) {
-            char c = addr[i];
+            char c = address[i];
             putchar(toupper(c));
-            addr[i] = c;
+            address[i] = c;
         }
       } else if (ind == 3) {  // thread 4; final 1/4 of file
         for (int i = (3/4)*file_len; i < file_len; i++) {
-            char c = addr[i];
+            char c = address[i];
             putchar(toupper(c));
-            addr[i] = c;
+            address[i] = c;
         }
       }
       return nullptr;
