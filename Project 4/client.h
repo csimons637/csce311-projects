@@ -54,7 +54,11 @@ class ClientSocket : UnixDomSock {
       write(sock_fd, file_path, sizeof(file_path));
 
       // Open file for thread processing
-      int fd = open(file_path, O_RDWR);
+      int fd = open(file_path, O_RDWR | O_CREAT, 0777);
+      if (fd < 0) {
+        std::cerr << strerror(errno) << std::endl;
+        exit(errno);
+      }
       struct stat file_info;
       size_t file_size = stat(file_path, &file_info);
       char *addr = reinterpret_cast<char *>(mmap(NULL, file_size,

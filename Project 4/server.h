@@ -42,7 +42,7 @@ class ServerSocket : public UnixDomSock {
           exit(-1);
       }
     std::cout << "Awaiting Client Request" << std::endl
-              << "Maximum CLient Connections: "
+              << "Maximum Client Connections: "
               << max_client_connects << std::endl;
 
     unlink(socket_path_.c_str());  // Deletes, if it already exists
@@ -69,19 +69,20 @@ class ServerSocket : public UnixDomSock {
             continue;
         }
 
-        std::cout << "Client Request Received" << std::endl;
+        std::cout << "Client Connected" << std::endl;
     }
 
     // Read file path from client
     char *read_buffer;
-    read(client_req_fd, read_buffer, sizeof(read_buffer));
+    read(sock_fd, read_buffer, sizeof(read_buffer));
+    std::cout << "Client Request Received" << std::endl;
 
     // Open file into shared memory
-    int fd = open(read_buffer, O_RDWR);
-    struct stat file_info;
-    size_t file_size = stat(read_buffer, &file_info);
-    char *addr;
     std::string file = read_buffer;
+    int fd = open(file.c_str(), O_WRONLY | O_CREAT, 0777);
+    struct stat file_info;
+    size_t file_size = stat(file.c_str(), &file_info);
+    char *addr;
     std::cout << "\tOpening: " + file << std::endl;
     addr = reinterpret_cast<char *>(mmap(NULL, file_size,
             PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
