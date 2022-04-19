@@ -29,7 +29,7 @@
     Source file for _client.cc_
     Connects to extant socket and sends file name to the server. Also iterates through file and capitalizes all text characters
     Defines:
-        + void RunClient(char *file_path): After connecting to socket, send <file_path> to server. After server maps file to memory, opens file and creates 4 threads for file processing
+        + void RunClient(char *file_path): After connecting to socket, send *<file_path>* to server. After server maps file to memory, opens file and creates 4 threads for file processing
         + static void *caseChange(void *ptr): Reads 1/4 of the file, and changes all lowercase characters to their uppercase counterparts (called by each of four threads)
 - server.cc:
     Source file for _text-server_ executable. Runs the server code and takes no command line arguments
