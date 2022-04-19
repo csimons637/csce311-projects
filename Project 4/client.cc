@@ -5,5 +5,5 @@
 
 int main(int argc, char** argv) {
     ClientSocket client("socket1");
-    client.RunClient(argv[2]);
+    client.RunClient(argv[1]);
 }

@@ -52,9 +52,10 @@ class ClientSocket : UnixDomSock {
       // Send file path to server
       std::cout << "Sending File Path to Server" << std::endl;
       write(sock_fd, file_path, sizeof(file_path));
+      std::cout << "Socket Written" << std::endl;
 
       // Open file for thread processing
-      int fd = open(file_path, O_RDWR | O_CREAT, 0777);
+      int fd = open(file_path, O_RDWR, 0);
       if (fd < 0) {
         std::cerr << strerror(errno) << std::endl;
         exit(errno);
