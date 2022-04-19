@@ -26,7 +26,7 @@
 // Number of threads
 #define THREAD_COUNT 4
 
-static char *address;  // mem address
+static char *addr;  // mem address
 static char *path;
 
 class ClientSocket : UnixDomSock {
@@ -55,16 +55,15 @@ class ClientSocket : UnixDomSock {
       std::cout << "Socket Written" << std::endl;
 
       // Open file for thread processing
-      int fd = open(file_path, O_RDWR, 0);
+      int fd = open(file_path, O_RDWR);
       if (fd < 0) {
         std::cerr << strerror(errno) << std::endl;
         exit(errno);
       }
       struct stat file_info;
       size_t file_size = stat(file_path, &file_info);
-      char *addr = reinterpret_cast<char *>(mmap(NULL, file_size,
-                PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
-      address = addr;
+      addr = static_cast<char *>(mmap(NULL, file_size,
+                  PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
       if (addr == MAP_FAILED) {
         std::cerr << strerror(errno) << std::endl;
         exit(errno);
@@ -102,28 +101,28 @@ class ClientSocket : UnixDomSock {
       // for char c in file, use: putchar (toupper(c))
       if (ind == 0) {  // thread 1; first 1/4 of file
         for (int i = 0; i < (1/4)*file_len; i++) {
-            char c = address[i];
+            char c = addr[i];
             putchar(toupper(c));
-            address[i] = c;
+            addr[i] = c;
         }
       } else if (ind == 1) {  // thread 2; second 1/4 of file
         for (int i = (1/4)*file_len; i < (2/4)*file_len; i++) {
-            char c = address[i];
+            char c = addr[i];
             putchar(toupper(c));
-            address[i] = c;
+            addr[i] = c;
         }
 
       } else if (ind == 2) {  // thread 3; third 1/4 of file
         for (int i = (2/4)*file_len; i < (3/4)*file_len; i++) {
-            char c = address[i];
+            char c = addr[i];
             putchar(toupper(c));
-            address[i] = c;
+            addr[i] = c;
         }
       } else if (ind == 3) {  // thread 4; final 1/4 of file
         for (int i = (3/4)*file_len; i < file_len; i++) {
-            char c = address[i];
+            char c = addr[i];
             putchar(toupper(c));
-            address[i] = c;
+            addr[i] = c;
         }
       }
       return nullptr;
